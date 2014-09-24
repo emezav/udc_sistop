@@ -1,4 +1,7 @@
-udc_sistop
+Operating system code samples
 ==========
 
-Operating systems class samples - Universidad del Cauca
+
+This repo contains the code samples from the "Operating System" course at the University of Cauca.
+
+#Author Erwin Meza Vega <emezav@gmail.com>
