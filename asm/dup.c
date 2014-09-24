@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -12,6 +13,7 @@ int main(int argc, char * argv[]){
     if (argc >= 2) {
 	for (i=0; i< argc - 1; i++) {
 	    x = atoi(argv[1 + i]);
+	    /* Call assembly function */
 	    printf("Value is %d duplicate is %d\n", x, duplicate(x));
 	}
     }
