@@ -6,4 +6,5 @@ This repo contains the code samples from the "Operating System" course at the Un
 Semester 2014-2
 
 
-#Author Erwin Meza Vega <emezav@gmail.com>
+#Author
+Erwin Meza Vega <emezav@gmail.com>
