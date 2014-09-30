@@ -1,2 +1,13 @@
-# Cloud9 folders
-.c9
+#Ignore everything
+*
+#Don't ignore directories
+!*/
+
+#Allow files
+!.gitignore
+!*.c
+!*.S
+!*.s
+!*.h
+!README.md
+!LICENSE
