@@ -4,48 +4,95 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <semaphore.h>
+#include <signal.h>
 
+const char * random_filename = "/tmp/urandom";
 const char * full_name = "/full_sem";
 const char * empty_name = "/empty_sem";
 const char * mutex_name = "/mutex_sem";
 
+
+//Signal handler
+void handle_sigint(int num);
+
+//Cleanup routine
+void cleanup(void);
+
 #define N 10
 
+//Global variables to use in main and signal handler
+int fd;
+sem_t * full;
+sem_t * empty;
+sem_t * mutex;
+
 int main(int argc, char * argv[]) {
-    int fd;
 
     int buf[N];
     int i;
-    sem_t * full;
-    sem_t * empty;
-    sem_t * mutex;
+
+    struct sigaction new_action;
+
+    //Install SIGINT signal handler
+    new_action.sa_handler = handle_sigint;
+    sigemptyset(&new_action.sa_mask);
+    new_action.sa_flags = 0;
+
+    sigaction(SIGINT, &new_action, 0);
 
 
     if ((empty = sem_open(empty_name, O_CREAT | O_RDWR , S_IRWXU, 1)) == SEM_FAILED) {
     	perror("Sem_open");
+    	exit(0);
     }
-    full = sem_open(full_name, O_CREAT | O_RDWR , S_IRWXU, 0);
-    mutex = sem_open(mutex_name, O_CREAT | O_RDWR , S_IRWXU, 1);
+
+    if ( (full = sem_open(full_name, O_CREAT | O_RDWR , S_IRWXU, 0)) == SEM_FAILED) {
+    	sem_unlink(empty_name);
+    	perror("sem_open");
+    	exit(0);
+    }
+    
+    if ((mutex = sem_open(mutex_name, O_CREAT | O_RDWR , S_IRWXU, 1)) == SEM_FAILED) {
+    	sem_unlink(empty_name);
+    	sem_unlink(full_name);
+    	perror("sem_open");
+    	exit(0);
+    }
 
     while(1) {
     	sem_wait(full);
     	sem_wait(mutex);
-	if ( (fd = open("/tmp/urandom", O_RDONLY)) == -1) {
+	if ( (fd = open(random_filename, O_RDONLY)) == -1) {
+	    cleanup();
 	    perror("open");
-	    exit(0);
+	    exit(1);
 	}
-	read (fd, buf, sizeof(int) * N);
+	if (read (fd, buf, sizeof(int) * N) <= 0) {
+	    break;
+	}
+	close(fd);
+	sem_post(mutex);
 
 	for (i=0; i<N; i++) {
 	    printf("%d\n", buf[i]);
 	}
 
-	close(fd);
-
-	sem_post(mutex);
 	sem_post(empty);
     }
 
+    cleanup();
+    exit(0);
 
+}
 
+void handle_sigint(int num) {
+    cleanup();
+    exit(1);
+}
+
+void cleanup() {
+    unlink(random_filename);
+    sem_unlink(empty_name);
+    sem_unlink(full_name);
+    sem_unlink(mutex_name);
 }
