@@ -93,6 +93,10 @@ void handle_sigint(int num) {
     exit(1);
 }
 
+/**
+ * Limpiar el entorno para salir.
+ * Cierra y destruye los semaforos abiertos.
+ */
 void cleanup() {
     unlink(random_filename);
     sem_unlink(empty_name);
