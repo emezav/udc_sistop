@@ -7,6 +7,8 @@
 
 #define MAXSIZE 512
 
+const char * addr_name = "mysocket";
+
 typedef struct {
     int code;
     char data[MAXSIZE];
@@ -27,7 +29,7 @@ int main(int argc, char * argv[])
     	exit(1);
     }
     addr.sun_family = AF_UNIX;
-    strcpy(&addr.sun_path, "mysocket");
+    strcpy(addr.sun_path, addr_name);
 
     if (bind(s, (struct sockaddr *)&addr, sizeof(struct sockaddr_un)) != 0) {
     	perror("bind");
