@@ -31,9 +31,11 @@ int main(int argc, char * argv[])
     addr.sun_family = AF_UNIX;
     strcpy(addr.sun_path, "mysocket");
 
-       while(1) {
 	c = connect(s, (struct sockaddr *)&addr, sizeof(struct sockaddr));
 	printf("Client connected\n");
+
+       while(1) {
+	
 	//Send, receive
 	    
 	msg = (message*)malloc(sizeof(message));
@@ -41,11 +43,9 @@ int main(int argc, char * argv[])
 	msg->code = 1;
 	memset(msg->data, 0, MAXSIZE);
 	strcpy(msg->data, "Hello");
-
-	send(c, (void *)msg, sizeof(message), 0);
 	
-	send(c, (void *)msg, sizeof(message), 0);
-	recv(c, (void *)msg, sizeof(message), 0);
+	send(s, (void *)msg, sizeof(message), 0);
+	recv(s, (void *)msg, sizeof(message), 0);
 	printf("Received: %s\n", msg->data);
 
        }
