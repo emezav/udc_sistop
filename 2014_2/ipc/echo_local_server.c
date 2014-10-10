@@ -43,20 +43,28 @@ int main(int argc, char * argv[])
       exit(1);
    }
 
-       while(1) {
+    while(1) {
+    	//Accept one connection
 	c = accept(s, 0, 0);
 	printf("Client connected\n");
-	//Send, receive
-	    /*
-	msg = (message*)malloc(sizeof(message));
 
-	msg->code = 1;
-	memset(&msg->data, 0, MAXSIZE);
-	strcpy(&msg->data, "Hello");
+	while(1) {
+	    //Attempt to receive and break if error
+	    if (recv(c, (void *)&m, sizeof(message), 0) < 0) {
+	    	printf("Server recv error\n");
+	    	break;
+	    }
 
-	send(c, (void *)msg, sizeof(message), 0);
-	*/
-	recv(c, (void *)&m, sizeof(message), 0);
-	send(c, (void *)&m, sizeof(message), 0);
-       }
+	    //Modify message code and return to client
+	    m.code = 1;
+
+	    if (send(c, (void *)&m, sizeof(message), 0) < 0) {
+	    	printf("Server send error\n");
+	    	break;
+	    }
+	}
+	printf("Client connection finished\n");
+	//Close client connection
+	close(c);
+    }
 }

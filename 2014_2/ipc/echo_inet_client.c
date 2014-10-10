@@ -3,7 +3,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <sys/un.h>
+#include <netinet/in.h>
 
 #define MAXSIZE 512
 
@@ -22,19 +22,23 @@ int main(int argc, char * argv[])
     char line[MAXSIZE];
 
 
-    struct sockaddr_un addr;
+    struct sockaddr_in addr;
 
        
-    if (( s = socket(PF_UNIX, SOCK_STREAM, 0)) == -1) {
+    if (( s = socket(PF_INET, SOCK_STREAM, 0)) == -1) {
     	perror("Socket");
     	exit(1);
     }
-    addr.sun_family = AF_UNIX;
-    strcpy(addr.sun_path, addr_name);
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(1234);
+    //addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    if (inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr.s_addr) <= 0) {
+    	perror("inet_pton");
+    	exit(1);
+    }
     //Connect to the server
-    if (connect(s, (struct sockaddr *)&addr, sizeof(struct sockaddr)) < 0) {
+    if (connect(s, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) < 0) {
     	perror("Connect");
-    	unlink(addr_name);
     	exit(1);
     }
 
